@@ -31,6 +31,12 @@ body a:hover {
   color: #c8c8c8;
 }
 
+body button {
+  background-color: transparent;
+  border: 0 none;
+  color: white;
+}
+
 .container aside nav .spotify-logo {
   padding: 24px;
   display: flex;
@@ -346,11 +352,32 @@ body a:hover {
     line-height: 16px;
     font-weight: normal;
   }
+  .container .player__controls ul, .container .player__adds ul {
+    display: flex;
+    flex-direction: row;
+  }
   .container .player__controls {
     width: 40%;
   }
+  .container .player__controls ul {
+    justify-content: space-between;
+  }
+  .container .player__controls ul li button {
+    height: 24px;
+    width: 24px;
+    font-size: 12px;
+  }
+  .container .player__controls ul li .play-pause {
+    border-radius: 50%;
+    border: 1px solid white;
+  }
   .container .player__adds {
     width: 30%;
+  }
+  .container .player__adds ul {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 }
 /*# sourceMappingURL=styles.css.map */

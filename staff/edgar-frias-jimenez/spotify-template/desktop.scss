@@ -265,12 +265,43 @@
         }
       }
 
+      &__controls,
+      &__adds {
+        ul {
+          display: flex;
+          flex-direction: row;
+        }
+      }
+
       &__controls {
         width: 40%;
+
+        ul {
+          justify-content: space-between;
+
+          li {
+            button {
+              height: 24px;
+              width: 24px;
+              font-size: 12px;
+            }
+
+            .play-pause {
+              border-radius: 50%;
+              border: 1px solid white;
+            }
+          }
+        }
       }
 
       &__adds {
         width: 30%;
+
+        ul  {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
       }
     }
   }

@@ -48,18 +48,18 @@ class App extends Component {
             handleLogin
         } = this
 
-        // return <Fragment>
-        return <>
-            <LanguageSelector onLanguageChange={handleLanguageChange} />
+        return (
+            <Fragment>
+                <LanguageSelector onLanguageChange={handleLanguageChange} />
 
-            {visible === 'landing' && <Landing lang={lang} onClickRegister={handleRegisterNavigation} onClickLogin={handleLoginNavigation} />}
+                {visible === 'landing' && <Landing lang={lang} onClickRegister={handleRegisterNavigation} onClickLogin={handleLoginNavigation} />}
 
-            {visible === 'register' && <Register lang={lang} onRegister={handleRegister} error={error} />}
+                {visible === 'register' && <Register lang={lang} onRegister={handleRegister} error={error} />}
 
-            {visible === 'login' && <Login lang={lang} onLogin={handleLogin} error={error} />}
+                {visible === 'login' && <Login lang={lang} onLogin={handleLogin} error={error} />}
 
-            {visible === 'home' && <Home lang={lang} name={name} />}
-        </>
-        // </Fragment>
+                {visible === 'home' && <Home lang={lang} name={name} />}
+            </Fragment>
+        )
     }
 }

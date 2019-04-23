@@ -1,32 +1,33 @@
-const i18nLanding = {
-    en: {
-        register: 'Register',
-        or: 'or',
-        login: 'Login'
-    },
-    es: {
-        register: 'Regístrate',
-        or: 'o',
-        login: 'Inicia sesión'
-    },
-    ca: {
-        register: 'Registra\'t',
-        or: 'o',
-        login: 'Inicia sessió'
-    },
-    ga: {
-        register: 'Rexistrese',
-        or: 'ou',
-        login: 'Inicia sesión'
+const Landing = (() => {
+    const literals = {
+        en: {
+            register: 'Register',
+            or: 'or',
+            login: 'Login'
+        },
+        es: {
+            register: 'Regístrate',
+            or: 'o',
+            login: 'Inicia sesión'
+        },
+        ca: {
+            register: 'Registra\'t',
+            or: 'o',
+            login: 'Inicia sessió'
+        },
+        ga: {
+            register: 'Rexistrese',
+            or: 'ou',
+            login: 'Inicia sesión'
+        }
     }
-}
 
-function Landing(props) {
-    const { lang } = props
+    return function ({lang, onClickRegister, onClickLogin }) {
 
-    const literals = i18nLanding[lang]
+        const { register, or, login } = literals[lang]
 
-    return <section onClick={e => e.preventDefault()}>
-        <a href="" onClick={() => props.onClickRegister()}>{literals.register}</a> <span>{literals.or}</span> <a href="" onClick={() => props.onClickLogin()}>{literals.login}</a>.
-    </section>
-}
+        return <section onClick={e => e.preventDefault()}>
+            <a href="" onClick={() => onClickRegister()}>{register}</a> <span>{or}</span> <a href="" onClick={() => onClickLogin()}>{login}</a>.
+        </section>
+    }
+})()

@@ -1,62 +1,67 @@
-const i18nRegister = {
-  en: {
-      title: 'Register',
-      name: 'Name',
-      surname: 'Surname',
-      email: 'E-mail',
-      password: 'Password'
-  },
-  es: {
-      title: 'Registro',
-      name: 'Nombre',
-      surname: 'Apellido',
-      email: 'E-milio',
-      password: 'Contraseña'
-  },
-  ca: {
-      title: 'Registre',
-      name: 'Nom',
-      surname: 'Cognom',
-      email: 'E-mil·li',
-      password: 'Contrasenya'
-  },
-  ga: {
-      title: 'Rexistro',
-      name: 'Nome',
-      surname: 'Apelido',
-      email: 'E-miliño',
-      password: 'Contrasinal'
-  }
-};
-
-function Register(props) {
-  const { lang } = props;
-
-  const literals = i18nRegister[lang];
-
-  function handleSubmit(e) {
-    e.preventDefault()
-
-    const name = e.target.name.value
-    const surname = e.target.surname.value
-    const username = e.target.username.value
-    const password = e.target.password.value
-
-    props.onRegister(name, surname, username, password)
+const Register = (() => {
+  const literals = {
+    en: {
+        title: 'Register',
+        name: 'Name',
+        surname: 'Surname',
+        email: 'E-mail',
+        password: 'Password',
+    },
+    es: {
+        title: 'Registro',
+        name: 'Nombre',
+        surname: 'Apellido',
+        email: 'E-milio',
+        password: 'Contraseña',
+    },
+    ca: {
+        title: 'Registre',
+        name: 'Nom',
+        surname: 'Cognom',
+        email: 'E-mil·li',
+        password: 'Contrasenya',
+    },
+    ga: {
+        title: 'Rexistro',
+        name: 'Nome',
+        surname: 'Apelido',
+        email: 'E-miliño',
+        password: 'Contrasinal',
+    }
   }
 
-  return <Fragment>
-    <h2>{literals.title}</h2>
+  return function ({ lang, onRegister, error }) {
+    const { title, name, surname, email, password } = literals[lang]
 
-    <form onSubmit={handleSubmit}>
-      <ul>
-          <li><input type="text" name="name" placeholder={literals.name} /></li>
-          <li><input type="text" name="surname" placeholder={literals.surname} /></li>
-          <li><input type="text" name="username" placeholder={literals.email} /></li>
-          <li><input type="password" name="password" placeholder={literals.password} /></li>
-      </ul>
+    function handleSubmit(e) {
+      e.preventDefault()
 
-      <button>{literals.title}</button>
-    </form>
-  </Fragment>
-}
+      const name = e.target.name.value
+      const surname = e.target.surname.value
+      const username = e.target.username.value
+      const password = e.target.password.value
+
+      onRegister(name, surname, username, password)
+    }
+
+    return (
+      <Fragment>
+        <h2>{title}</h2>
+
+        <form onSubmit={handleSubmit}>
+          <ul>
+              <li><input type="text" name="name" placeholder={name} /></li>
+              <li><input type="text" name="surname" placeholder={surname} /></li>
+              <li><input type="text" name="username" placeholder={email} /></li>
+              <li><input type="password" name="password" placeholder={password} /></li>
+          </ul>
+          <p>{error}</p>
+
+          <button>{title}</button>
+        </form>
+      </Fragment>
+    )
+
+  }
+
+})()

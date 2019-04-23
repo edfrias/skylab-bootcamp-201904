@@ -1,8 +1,22 @@
-function LanguageSelector(props) {
-    return <select onChange={ event => props.onLanguageChange(event.target.value)}>
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="ca">Català</option>
-        <option value="ga">Galego</option>
-    </select>
-}
+const LanguageSelector = (() => {
+    const literals = {
+        english: 'English',
+        spanish: 'Español',
+        catalan: 'Català',
+        galician: 'Galego'
+    }
+
+    return function ({ onLanguageChange }) {
+        const { english, spanish, catalan, galician } = literals
+
+        return (
+            <select onChange={ e => onLanguageChange(e.target.value)}>
+                <option value="en">{english}</option>
+                <option value="es">{spanish}</option>
+                <option value="ca">{catalan}</option>
+                <option value="ga">{galician}</option>
+            </select>
+        )
+    }
+
+})()

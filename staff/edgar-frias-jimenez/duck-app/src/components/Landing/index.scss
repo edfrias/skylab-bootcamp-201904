@@ -1,0 +1,40 @@
+// Landing page
+.landing {
+  & > section {
+    --gradient-start: #7c263f;
+    --gradient-end: #b55096;
+    background: linear-gradient(33deg, var(--gradient-start), var(--gradient-end));
+    display: flex;
+    align-items: flex-end;
+    border: 1px solid #f3d56f;
+    border-radius: 30px;
+    position: relative;
+    margin: 40px auto;
+    min-height: 450px;
+    max-width: 450px;
+
+    & > div {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+      align-items: center;
+
+      a {
+
+        text-align: center;
+        display: block;
+        height: 40px;
+        width: 200px;
+      }
+    }
+  }
+
+  &__image {
+    width: 300px;
+    border-radius: 30px;
+    top: 20px;
+    position: absolute;
+    left: calc(50% - 150px);
+    margin: 0 auto;
+  }
+}

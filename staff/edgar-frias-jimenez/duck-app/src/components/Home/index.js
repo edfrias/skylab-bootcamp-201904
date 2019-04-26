@@ -5,6 +5,8 @@ import Search from '../Search'
 import Results from '../Results'
 import Detail from '../Detail'
 
+import './index.scss'
+
 class Home extends Component {
     state = { error: null, ducks: [], duck: null, favs: [] }
 

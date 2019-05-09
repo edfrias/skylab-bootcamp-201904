@@ -1,7 +1,11 @@
 const express = require('express')
 const bodyParser = require('./body-parser')
+const render = require('./render')
+const landing = require('./components/landing')
+const logic = require('./logic')
+const package = require('./package.json')
 
-const { argv: [, , port] } = process
+const { argv: [, , port = 8080] } = process
 
 const app = express()
 
@@ -9,39 +13,24 @@ app.use(express.static('public'))
 
 let user = {}
 
-function render(body) {
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Server App</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <main class="main">
-            <h1 class="title">Welcome to server-app</h1>
-            ${body}
-        </main>
-    </body>
-    </html>`
-}
-
 app.get('/register', (req, res) =>
-    res.send(render(`<form class="register" method="post" action="/register">
-            <input type="text" name="username">
-            <input type="password" name="password">
+    res.send(render(`
+        <form class="register" method="post" action="/register">
+            <input type="text" name="name" placeholder="Name" autofocus required>
+            <input type="text" name="surname" placeholder="Surname">
+            <input type="email" name="email" placeholder="Email">
+            <input type="password" name="password" placeholder="Password" required>
             <button>Register</button>
-        </form>`))
+        </form>
+    `))
 )
 
 app.post('/register', bodyParser, (req, res) => {
 
-    const { username, password } = req.body
+    const { name, surname, email, password } = req.body
 
-    user.username = username
-    user.password = password
+    logic.registerUser(name, surname, email, password)
+        .then()
 
     res.send(render(`<p>Ok, user correctly registered, you can now proceed to <a href="/login">login</a></p>`))
 })
@@ -73,8 +62,8 @@ app.get('/home', (req, res) =>
     res.send(render(`<h1>Welcome, ${user.username}!</h1>`))
 )
 
-app.get('/landing', (req, res) =>
-    res.send(render(`<h1>This is a landing</h1>`))
+app.get('/', (req, res) =>
+    res.send(render(landing()))
 )
 
-app.listen(port)
+app.listen(port, () => console.log(`${package.name} v${package.version} up and running`))

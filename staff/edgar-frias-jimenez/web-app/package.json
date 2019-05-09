@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon index.js 8080",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.16.4"
+    "atob": "^2.1.2",
+    "express": "^4.16.4",
+    "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "nodemon": "^1.19.0"
-  }
+    "jest": "^24.8.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "watch": "nodemon index.js",
+    "test": "jest",
+    "test:debug": "node debug node_modules/.bin/jest --runInBand --watchAll"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

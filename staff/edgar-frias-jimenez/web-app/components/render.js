@@ -5,13 +5,11 @@ function render(body) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>Server App</title>
-        <link rel="stylesheet" href="style.css">
+        <title>Document</title>
+        <link rel="stylesheet" href="/style.css">
     </head>
     <body>
-        <main class="main with--borders is--rounded">
-            ${body}
-        </main>
+        ${body}
     </body>
     </html>`
 }

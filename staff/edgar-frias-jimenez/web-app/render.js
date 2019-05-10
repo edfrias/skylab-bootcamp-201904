@@ -10,7 +10,6 @@ function render(body) {
     </head>
     <body>
         <main class="main with--borders is--rounded">
-            <h1 class="title with--borders is--rounded">Welcome to server-app</h1>
             ${body}
         </main>
     </body>

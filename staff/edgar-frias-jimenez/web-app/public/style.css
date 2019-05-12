@@ -7,7 +7,12 @@ html {
     min-width: 100%;
 }
 
-body {
+body * {
+    color: #033263;
+    box-sizing: border-box;
+}
+
+.container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -15,24 +20,28 @@ body {
     height: 100vh;
 }
 
-body * {
-    color: #033263;
-}
-
-.with--borders {
+.with-borders {
     border: 1px solid #033263;
     box-shadow: 5px 8px 0 0 #033263, 6px 9px 0 0 #fff;
 }
 
-.is--rounded {
+.is-rounded {
     border-radius: 24px;
+}
+
+.has-error {
+    padding: 0 24px;
+    border-color: red;
+    box-shadow: 5px 8px 0 0 red, 6px 9px 0 0 #fff;
 }
 
 .main {
     background: white;
     margin: 0 auto;
     padding: 24px;
+    position: relative;
     min-height: 600px;
+    width: 100%;
     width: 75%;
 }
 
@@ -42,9 +51,25 @@ body * {
     text-align: center;
 }
 
-.register,
-.login {
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+form.logout {
+    position: absolute;
+    top: 0;
+    right: 24px;
+}
+
+.form input {
     background: white;
+    width: 200px;
+    height: 36px;
+    padding: 0 24px;
+    margin: 0 24px 24px;
 }
 
 .buttons {
@@ -63,4 +88,37 @@ body * {
     padding: 12px 24px;
     margin: 24px 0;
     text-align: center;
+}
+
+.home {
+    background: white;
+    margin: 60px auto;
+    padding: 24px;
+    position: relative;
+    min-height: 600px;
+    width: 100%;
+    width: 75%;
+}
+
+.duck-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.duck-list .duck-list__item {
+    max-width: 600px;
+    margin-bottom: 32px;
+    padding: 24px;
+}
+
+.duck-list__item a {
+    display: block;
+    text-align: center;
+}
+
+.duck-list__item a img {
+    max-width: 400px
 }

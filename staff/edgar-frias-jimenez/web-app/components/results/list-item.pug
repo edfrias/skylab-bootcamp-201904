@@ -1,0 +1,6 @@
+mixin list-item(duck)
+  li.duck-list__item.is-rounded.with-borders(id=duck.id)
+    h2.title #{duck.title}
+     a(href=duck.url)
+      img(src=duck.image)
+      span #{price}

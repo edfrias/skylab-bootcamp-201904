@@ -1,7 +1,9 @@
 extends ../index
 
 block content
-    h1 Welcome to this Web Application
-    a(href='/register') Register
-    |  or 
-    a(href='/login') Login
+    section.container
+        div.main.is-rounded.with-borders
+            h1.title Welcome to this Web Application
+            div.buttons
+                a.button.is-rounded.with-borders(href='/register') Register
+                a.button.is-rounded.with-borders(href='/login') Login

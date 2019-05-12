@@ -3,10 +3,12 @@ extends ../index
 include ../feedback/index
 
 block content
-    h1 Login
-    form(method='post' action='/login')
-        input(type='text' name='email' placeholder='email' autofocus='' required='' value=email)
-        input(type='password' name='password' placeholder='password' required='')
-        if message
-            +feedback(message)
-        button Login
+    section.container
+        div.main.is-rounded.with-borders
+            h1.title Login
+            form.form(method='post' action='/login')
+                input.is-rounded.with-borders(type='text' name='email' placeholder='email' autofocus='' required='' value=email)
+                input.is-rounded.with-borders(type='password' name='password' placeholder='password' required='')
+                if message
+                    +feedback(message)
+                button.button.is-rounded.with-borders Login

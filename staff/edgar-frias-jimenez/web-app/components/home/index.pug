@@ -1,0 +1,27 @@
+extends ../index
+
+include ../feedback/index
+
+include ../search/index
+include ../results/list
+include ../detail/index
+
+block content
+    div.home.is-rounded.with-borders
+        h1.title Hola, #{name}!
+        div.form
+            form.logout(method='post' action='/logout')
+                button.button.is-rounded.with-borders Logout
+
+            form(action='/home/search')
+                input.is-rounded.with-borders(type='text' name='query' placeholder='Search a duck' value=query)
+                button.button.is-rounded.with-borders Search
+
+        if message
+            +feedback(message)
+
+        if ducks
+            +results(ducks)
+
+        if duck
+            +detail(duck)

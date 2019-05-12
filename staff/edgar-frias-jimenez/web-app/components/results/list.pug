@@ -1,0 +1,6 @@
+include ./list-item
+
+mixin results (ducks)
+  ul.duck-list
+    each duck in ducks
+      +list-item(duck)

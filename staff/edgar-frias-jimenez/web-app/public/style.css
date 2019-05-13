@@ -90,6 +90,17 @@ form.logout {
     text-align: center;
 }
 
+.form.search {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.form.search input {
+    margin-bottom: 0;
+}
+
 .home {
     background: white;
     margin: 60px auto;
@@ -112,6 +123,7 @@ form.logout {
     max-width: 600px;
     margin-bottom: 32px;
     padding: 24px;
+    position: relative;
 }
 
 .duck-list__item a {
@@ -121,4 +133,36 @@ form.logout {
 
 .duck-list__item a img {
     max-width: 400px
+}
+
+.duck {
+    padding: 24px;
+    position: relative;
+}
+
+.favorite {
+    background: transparent;
+    border: 1px solid #033263;
+    border-top-width: 0;
+    position: absolute;
+    top: 0;
+    right: 24px;
+    height: 50px;
+    width: 35px;
+}
+
+.favorite:hover {
+    cursor: pointer;
+}
+
+.favorite:hover i {
+    color: lightgray;
+}
+
+.favorite--off {
+    color: grey;
+}
+
+.favorite--on {
+    color: red;
 }

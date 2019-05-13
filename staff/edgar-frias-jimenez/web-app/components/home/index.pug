@@ -13,9 +13,7 @@ block content
             form.logout(method='post' action='/logout')
                 button.button.is-rounded.with-borders Logout
 
-            form(action='/home/search')
-                input.is-rounded.with-borders(type='text' name='query' placeholder='Search a duck' value=query)
-                button.button.is-rounded.with-borders Search
+            +search
 
         if message
             +feedback(message)

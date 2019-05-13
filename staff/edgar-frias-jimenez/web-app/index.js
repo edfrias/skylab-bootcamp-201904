@@ -2,10 +2,8 @@ const express = require('express')
 const { injectLogic, checkLogin } = require('./middlewares')
 const render = require('./components/render')
 const package = require('./package.json')
-// const { Register, Home } = require('./components')
 const bodyParser = require('body-parser')
 const session = require('express-session')
-
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -30,7 +28,7 @@ app.get('/register', checkLogin('/home'), (req, res) => res.render('register', {
 
 app.post('/register', [checkLogin('/home'), urlencodedParser], (req, res) => {
     const { body: { name, surname, email, password }, logic } = req
-
+    debugger
     try {
         logic.registerUser(name, surname, email, password)
             .then(() => res.render('login', { email, message: 'Your register has been successful, please, log in', logout: true}))
@@ -48,7 +46,7 @@ app.get('/login', checkLogin('/home'), (req, res) =>
 
 app.post('/login', [checkLogin('/home'), urlencodedParser], (req, res) => {
     const { body: { email, password }, logic, session } = req
-
+    debugger
     try {
         logic.loginUser(email, password)
             .then(() => {
@@ -64,7 +62,7 @@ app.post('/login', [checkLogin('/home'), urlencodedParser], (req, res) => {
 
 app.get('/home', checkLogin('/', false), (req, res) => {
     const { logic } = req
-
+    debugger
     logic.retrieveUser()
         .then(({ name }) => res.render('home', name))
         .catch(({ message }) => res.render('home', { message }))
@@ -74,7 +72,7 @@ app.get('/home/search', checkLogin('/', false), urlencodedParser, (req, res) => 
     const { query: { query }, logic, session } = req
 
     session.query = query
-
+    debugger
     return logic
         .retrieveUser()
             .then(({ name }) => {
@@ -82,9 +80,10 @@ app.get('/home/search', checkLogin('/', false), urlencodedParser, (req, res) => 
                     .then(ducks => {
                         ducks = ducks.map(({ id, title, imageUrl: image, price }) => ({
                             url: `/home/duck/${id}`,
+                            id,
                             title,
                             image,
-                            price
+                            price,
                         }))
 
                         res.render('home', { name, query, ducks })
@@ -93,51 +92,18 @@ app.get('/home/search', checkLogin('/', false), urlencodedParser, (req, res) => 
             .catch(({ message }) => res.render('home', { message }))
 })
 
-app.post('/home/search', checkLogin('/', false), urlencodedParser, (req, res) => {
-    const {
-      query: { query },
-    //   body,
-      session,
-    //   logic,
-    } = req;
-
-    session.query = query;
-
-    // if (body.toggleFav) {
-    //   const id = body.toggleFav;
-    //   return logic.toggleFavDuck(id).then(() => res.redirect(`/home/search?query=${query}#${id}`));
-    // } else
-    res.redirect(req.url);
-});
-
-// app.get('/home/duck/:id', checkLogin('/', false), (req, res) => {
-//     const { params: { id }, logic, session: { query } } = req
-
-//     return logic
-//         .retrieveUser()
-//             .then(({ name }) => {
-//                 logic.retrieveDuck(id)
-//                     .then(({ title, imageUrl: image, description, price }) => { title, image, description, price })
-//                     .then(duck => res.render('home', { query, name, duck }))
-//             })
-// })
 
 app.get('/home/duck/:id', checkLogin('/', false), (req, res) => {
-    const {
-      params: { id },
-      session: { query, logic },
-    } = req;
+    const { params: { id }, logic, session: { query } } = req
 
-    return logic.retrieveDuck(id)
-        .then(({ title, imageUrl: image, description, price }) => ({
-          id,
-          title,
-          image,
-          description,
-          price,
-        }))
-        .then(duck => res.render('home', { query, name, duck }))
-});
+    logic.retrieveDuck(id)
+        .then(({ title, imageUrl: image, description, price }) => {
+            const duck = { title, image, description, price }
+
+            return logic.retrieveUser()
+                .then(({ name }) => res.render('home', { query, name, duck }))
+        })
+})
 
 app.post('/home/duck/:id', checkLogin('/', false), urlencodedParser, (req, res) => {
     const {

@@ -1,6 +1,6 @@
 mixin detail(duck)
-  section.duck
+  section.duck.is-rounded.with-borders
     h2.title #{duck.title}
       img(src=duck.image)
-      p #{description}
-      span #{price}
+      p #{duck.description}
+      span #{duck.price}

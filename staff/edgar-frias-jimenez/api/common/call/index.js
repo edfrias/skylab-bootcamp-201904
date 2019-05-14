@@ -1,7 +1,6 @@
 const validate = require('../validate')
-const { ConnectionError } = require('../errors')
+const { ConnectionError, HttpError } = require('../errors')
 const axios = require('axios')
-require('isomorphic-fetch')
 
 /**
  * Makes an HTTP call.
@@ -12,6 +11,7 @@ require('isomorphic-fetch')
  *
  * @version 4.0.0
  */
+
 function call(url, options = {}) {
     const { method = 'GET', headers, data } = options
 
@@ -19,7 +19,7 @@ function call(url, options = {}) {
         { name: 'url', value: url, type: 'string', notEmpty: true },
         { name: 'method', value: method, type: 'string', notEmpty: true },
         { name: 'headers', value: headers, type: 'object', optional: true },
-        { name: 'data', value: data, type: 'string', notEmpty: true, optional: true }
+        { name: 'data', value: data, type: 'object', optional: true }
     ])
 
     validate.url(url)
@@ -30,9 +30,21 @@ function call(url, options = {}) {
         url,
         data
     })
+        .then(response => response.data)
         .catch(error => {
-            if (error.name === 'FetchError') throw new ConnectionError('cannot connect')
-            else throw error
+            if (error.code === 'ENOTFOUND')  throw new ConnectionError('cannot connect')
+
+            const { response } = error
+
+            if (response && response.status) {
+                const err = new HttpError()
+
+                err.status = response.status
+
+                throw err
+            }
+
+            throw error
         })
 }
 

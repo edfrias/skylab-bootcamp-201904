@@ -13,7 +13,7 @@ router.post('/users', jsonParser, (req, res) => {
 
     handleErrors(() =>
         logic.registerUser(name, surname, email, password)
-            .then(() => res.status(201).json({ message: 'Ok, user registered. ' })),
+            .then(() => res.status(201).json({ message: 'Ok, user registered.' })),
         res)
 })
 
@@ -28,6 +28,7 @@ router.post('/users/auth', jsonParser, (req, res) => {
 
 router.get('/users', (req, res) => {
     handleErrors(() => {
+        debugger
         const { headers: { authorization } } = req
 
         if (!authorization) throw new UnauthorizedError()
@@ -40,41 +41,6 @@ router.get('/users', (req, res) => {
             .then(user => res.json(user))
     },
         res)
-})
-
-
-router.put('/users/:id', jsonParser, (req, res) => {
-    const { body: { data } } = req
-
-    handleErrors(() => {
-        const { headers: { authorization }, params: { id } } = req
-
-        if (!authorization) throw new UnauthorizedError()
-
-        const token = authorization.slice(7)
-
-        if (!token) throw new UnauthorizedError()
-
-        return logic.updateUser(token, id, data)
-            .then(() => res.json({ message: 'Succeed adding data.' }))
-    }, res)
-})
-
-router.delete('/users/:id', jsonParser, (req, res) => {
-    const { body: { email, password } } = req
-
-    handleErrors(() => {
-        const { headers: { authorization }, params: { id } } = req
-
-        if (!authorization) throw new UnauthorizedError()
-
-        const token = authorization.slice(7)
-
-        if (!token) throw new UnauthorizedError()
-
-        return logic.deleteUser(token, id, email, password)
-            .then(() => res.json({ message: 'Succeed deleting user.' }))
-    }, res)
 })
 
 router.post('/ducks/:id/fav', (req, res) => {
@@ -95,6 +61,7 @@ router.post('/ducks/:id/fav', (req, res) => {
 
 router.get('/ducks/fav', (req, res) => {
     handleErrors(() => {
+        debugger
         const { headers: { authorization } } = req
 
         if (!authorization) throw new UnauthorizedError()

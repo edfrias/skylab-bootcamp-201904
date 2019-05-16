@@ -8,9 +8,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.0.0",
-    "express": "^4.16.4",
-    "express-session": "^1.16.1",
-    "pug": "^2.0.3"
+    "express": "^4.16.4"
   },
   "devDependencies": {
     "jest": "^24.8.0"
@@ -20,7 +18,7 @@
     "watch": "nodemon .",
     "debug": "node debug .",
     "test": "jest",
-    "test:debug": "node --inspect ./node_modules/jest/bin/jest.js --runInBand --watchAll --colors"
+    "test:debug": "node debug node_modules/.bin/jest --runInBand --watchAll"
   },
   "keywords": [],
   "author": "",

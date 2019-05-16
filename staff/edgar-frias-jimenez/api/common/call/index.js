@@ -11,7 +11,6 @@ const axios = require('axios')
  *
  * @version 4.0.0
  */
-
 function call(url, options = {}) {
     const { method = 'GET', headers, data } = options
 

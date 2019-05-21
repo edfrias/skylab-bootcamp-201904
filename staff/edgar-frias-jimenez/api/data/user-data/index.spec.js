@@ -119,9 +119,7 @@ describe('user data', () => {
         })
     })
 
-    describe('delete', () => {
-        // TODO
-    })
+    describe('delete', () => {})
 
     describe('find', () => {
         let _users
@@ -140,8 +138,6 @@ describe('user data', () => {
 
         it('should succeed on matching existing users', async () => {
             const criteria = ({ name, email }) => (name.includes('F') || name.includes('a')) && email.includes('i')
-
-            await userData.find(criteria)
 
             const users = await userData.find(criteria)
 

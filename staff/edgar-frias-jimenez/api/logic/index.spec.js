@@ -24,32 +24,34 @@ describe('logic', () => {
         describe('register user', () => {
             beforeEach(() => file.writeFile(userData.__file__, '[]'))
 
-            it('should succeed on correct user data', () =>
-                logic.registerUser(name, surname, email, password)
-                    .then(response => {
-                        expect(response).toBeUndefined()
+            it('should succeed on correct user data', async () => {
+                const response = await logic.registerUser(name, surname, email, password)
 
-                        return userData.find(user => user.matches({ name, surname, email, password }))
-                    })
-                    .then(users => {
-                        expect(users).toBeDefined()
-                        expect(users).toHaveLength(1)
-                    })
-            )
+                expect(response).toBeUndefined()
+
+                const users = await userData.find(user => user.matches({ name, surname, email, password }))
+
+                expect(users).toBeDefined()
+
+                expect(users).toHaveLength(1)
+            })
 
             describe('on already existing user', () => {
                 beforeEach(() => logic.registerUser(name, surname, email, password))
 
-                it('should fail on retrying to register', () =>
-                    logic.registerUser(name, surname, email, password)
-                        .then(() => { throw Error('should not reach this point') })
-                        .catch(error => {
-                            expect(error).toBeDefined()
-                            expect(error).toBeInstanceOf(LogicError)
+                it('should fail on retrying to register', async () => {
+                    try {
+                        const error = await logic.registerUser(name, surname, email, password)
 
-                            expect(error.message).toBe(`user with email "${email}" already exists`)
-                        })
-                )
+                        expect(error).toBeDefined()
+
+                        expect(error).toBeInstanceOf(LogicError)
+
+                        expect(error.message).toBe(`user with email "${email}" already exists`)
+                    } catch(error) {
+                        throw Error('should not reach this point')
+                    }
+                })
             })
 
             it('should fail on undefined name', () => {

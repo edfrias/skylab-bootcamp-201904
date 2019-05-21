@@ -1,4 +1,4 @@
-const fs = require('fs').promises
+const file = require('../../common/utils/file')
 const path = require('path')
 const uuid = require('uuid/v4')
 const validate = require('../../common/validate')
@@ -7,16 +7,21 @@ const { ValueError } = require('../../common/errors')
 const userData = {
     __file__: path.join(__dirname, 'users.json'),
 
-    __load__() {
-        return fs.readFile(this.__file__, 'utf8')
-            .then(JSON.parse)
+    async __load__() {
+        if (this.__users__)
+            return this.__users__
+        else {
+            const content = await file.readFile(this.__file__, 'utf8')
+
+            const users = JSON.parse(content)
+
+            return this.__users__ = users
+        }
     },
 
-    __save__(users) {
-        return fs.writeFile(this.__file__, JSON.stringify(users))
+    __save__() {
+        return file.writeFile(this.__file__, JSON.stringify(this.__users__))
     },
-
-    __cache__: {}, // WEAK cache (but just didactive for "children")
 
     create(user) {
         validate.arguments([
@@ -25,12 +30,13 @@ const userData = {
 
         user.id = uuid()
 
-        return this.__load__()
-            .then(users => {
-                users.push(user)
+        return (async () => {
+            const users = await this.__load__()
 
-                return this.__save__(users)
-            })
+            users.push(user)
+
+            return await this.__save__()
+        })()
     },
 
     list() {
@@ -43,8 +49,11 @@ const userData = {
             { name: 'id', value: id, type: 'string', notEmpty: true, optional: false }
         ])
 
-        return this.__load__()
-            .then(users => users.find(({ id: _id }) => _id === id))
+        return (async () => {
+            const users = await this.__load__()
+
+            return users.find(({ id: _id }) => _id === id)
+        })()
     },
 
     find(criteria) {
@@ -52,38 +61,35 @@ const userData = {
             { name: 'criteria', value: criteria, type: 'function', notEmpty: true, optional: false }
         ])
 
-        const index = criteria.toString()
+        return (async () => {
+            const users = await this.__load__()
 
-        const users = this.__cache__[index]
-
-        if (!users)
-            return this.__load__()
-                .then(users => users.filter(criteria))
-                .then(users => this.__cache__[index] = users)
-        else return Promise.resolve(users)
+            return users.filter(criteria)
+        })()
     },
 
     update(id, data, replace) {
         validate.arguments([
-            { name: 'id', value: id, type: 'string', notEmpty: true, optional: false },
-            { name: 'data', value: data, type: 'object', optional: false },
-            { name: 'replace', value: replace, type: 'boolean' }
+            { name: 'id', value: id, type: 'string', notEmpty: true },
+            { name: 'data', value: data, type: 'object' },
+            { name: 'replace', value: replace, type: 'boolean', optional: true }
         ])
 
         if (data.id && id !== data.id) throw new ValueError('data id does not match criteria id')
 
-        return this.__load__()
-            .then(users => {
-                const user = users.find(({ id: _id }) => _id === id)
+        return (async () => {
+            const users = await this.__load__()
 
-                if (replace)
-                    for (const key in user)
-                        if (key !== 'id') delete user[key]
+            const user = users.find(({ id: _id }) => _id === id)
 
-                for (const key in data) user[key] = data[key]
+            if (replace)
+                for (const key in user)
+                    if (key !== 'id') delete user[key]
 
-                return this.__save__(users)
-            })
+            for (const key in data) user[key] = data[key]
+
+            return await this.__save__()
+        })()
     }
 }
 

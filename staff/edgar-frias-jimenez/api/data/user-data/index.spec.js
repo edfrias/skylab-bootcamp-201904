@@ -1,5 +1,5 @@
 const userData = require('.')
-const fs = require('fs').promises
+const file = require('../../common/utils/file')
 const path = require('path')
 require('../../common/utils/array-random.polyfill')
 
@@ -16,111 +16,105 @@ describe('user data', () => {
         password: `123-${Math.random()}`
     }))
 
-
+    beforeEach(() => delete userData.__users__)
 
     describe('create', () => {
-        beforeEach(() => fs.writeFile(userData.__file__, '[]'))
+        beforeEach(() => file.writeFile(userData.__file__, '[]'))
 
-        it('should succeed on correct data', () => {
+        it('should succeed on correct data', async () => {
             const user = {
                 name: 'Manuel',
                 surname: 'Barzi',
                 email: 'manuelbarzi@gmail.com',
                 password: '123'
             }
+            await userData.create(user)
 
-            return userData.create(user)
-                .then(() => {
-                    expect(typeof user.id).toBe('string')
+            expect(typeof user.id).toBe('string')
 
-                    return fs.readFile(userData.__file__, 'utf8')
-                })
-                .then(content => {
-                    expect(content).toBeDefined()
+            const content  = await file.readFile(userData.__file__, 'utf8')
 
-                    const users = JSON.parse(content)
+            expect(content).toBeDefined()
 
-                    expect(users).toHaveLength(1)
+            const users = JSON.parse(content)
 
-                    const [_user] = users
+            expect(users).toHaveLength(1)
 
-                    // expect(_user).toMatchObject(user)
-                    expect(_user).toEqual(user)
-                })
+            const [_user] = users
+
+            expect(_user).toEqual(user)
         })
     })
 
     describe('list', () => {
-        beforeEach(() => fs.writeFile(userData.__file__, JSON.stringify(users)))
+        beforeEach(() => file.writeFile(userData.__file__, JSON.stringify(users)))
 
-        it('should succeed and return items if users exist', () => {
-            userData.list()
-                .then(_users => {
-                    expect(_users).toHaveLength(users.length)
+        it('should succeed and return items if users exist', async () => {
 
-                    // expect(_users).toMatchObject(users)
-                    expect(_users).toEqual(users)
-                })
+            const _users = await userData.list()
+                expect(_users).toHaveLength(users.length)
+                expect(_users).toEqual(users)
         })
     })
 
     describe('retrieve', () => {
-        beforeEach(() => fs.writeFile(userData.__file__, JSON.stringify(users)))
+        beforeEach(() => file.writeFile(userData.__file__, JSON.stringify(users)))
 
-        it('should succeed on an already existing user', () => {
+        it('should succeed on an already existing user', async () => {
             const user = users[Math.random(users.length - 1)]
-
-            return userData.retrieve(user.id)
-                .then(_user =>
-                    expect(_user).toEqual(user)
-                )
+            const _user = await userData.retrieve(user.id)
+            expect(_user).toEqual(user)
         })
     })
 
     describe('update', () => {
-        beforeEach(() => fs.writeFile(userData.__file__, JSON.stringify(users)))
+        beforeEach(() => file.writeFile(userData.__file__, JSON.stringify(users)))
 
         describe('replacing', () => {
-            it('should succeed on correct data', () => {
+            it('should succeed on correct data', async () => {
                 const user = users[Math.random(users.length - 1)]
 
                 const data = { name: 'n', email: 'e', password: 'p', lastAccess: Date.now() }
 
-                return userData.update(user.id, data, true)
-                    .then(() => fs.readFile(userData.__file__, 'utf8'))
-                    .then(JSON.parse)
-                    .then(users => {
-                        const _user = users.find(({ id }) => id === user.id)
+                await userData.update(user.id, data, true)
 
-                        expect(_user).toBeDefined()
+                const _users = await file.readFile(userData.__file__, 'utf8')
 
-                        expect(_user.id).toEqual(user.id)
+                const parseUser = JSON.parse(_users)
 
-                        expect(_user).toMatchObject(data)
+                const _user = parseUser.find(({ id }) => id === user.id)
 
-                        expect(Object.keys(_user).length).toEqual(Object.keys(data).length + 1)
-                    })
+                expect(_user).toBeDefined()
+
+                expect(_user.id).toEqual(user.id)
+
+                expect(_user).toMatchObject(data)
+
+                expect(Object.keys(_user).length).toEqual(Object.keys(data).length + 1)
             })
         })
 
         describe('not replacing', () => {
-            it('should succeed on update the correct fields', () => {
+            it('should succeed on correct data', async () => {
                 const user = users[Math.random(users.length - 1)]
 
-                const data = { name: 'n', email: 'e', password: 'p', lastAccess: Date.now() }
+                const data = { name: 'n', surname: 's', email: 'e', password: 'p', lastAccess: Date.now() }
 
-                return userData.update(user.id, data, false)
-                    .then(() => fs.readFile(userData.__file__, 'utf8'))
-                    .then(JSON.parse)
-                    .then(users => {
-                        const _user = users.find(({ id }) => id === user.id)
+                await userData.update(user.id, data)
 
-                        expect(_user).toBeDefined()
+                const _users = await file.readFile(userData.__file__, 'utf8')
 
-                        expect(_user.id).toEqual(user.id)
+                const parseUser = JSON.parse(_users)
 
-                        expect(_user).toMatchObject(data)
-                    })
+                const _user = parseUser.find(({ id }) => id === user.id)
+
+                expect(_user).toBeDefined()
+
+                expect(_user.id).toEqual(user.id)
+
+                expect(_user).toMatchObject(data)
+
+                expect(Object.keys(_user).length).toEqual(Object.keys(data).length + 1)
             })
         })
     })
@@ -141,21 +135,21 @@ describe('user data', () => {
                 password: `123-${Math.random()}`
             })
 
-            return fs.writeFile(userData.__file__, JSON.stringify(_users))
+            return file.writeFile(userData.__file__, JSON.stringify(_users))
         })
 
-        it('should succeed on matching existing users', () => {
+        it('should succeed on matching existing users', async () => {
             const criteria = ({ name, email }) => (name.includes('F') || name.includes('a')) && email.includes('i')
 
-            return userData.find(criteria)
-                .then(() => userData.find(criteria))
-                .then(users => {
-                    const __users = _users.filter(criteria)
+            await userData.find(criteria)
 
-                    expect(users).toEqual(__users)
-                })
+            const users = await userData.find(criteria)
+
+            const __users = _users.filter(criteria)
+
+            expect(users).toEqual(__users)
         })
     })
 
-    afterAll(() => fs.writeFile(userData.__file__, '[]'))
+    afterAll(() => file.writeFile(userData.__file__, '[]'))
 })

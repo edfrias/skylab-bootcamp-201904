@@ -10,7 +10,7 @@
     "dotenv": "^8.0.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.5.1",
-    "uuid": "^3.3.2"
+    "mongodb": "^3.2.5"
   },
   "devDependencies": {
     "jest": "^24.8.0"

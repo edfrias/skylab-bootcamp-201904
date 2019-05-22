@@ -1,26 +1,31 @@
 const userData = require('.')
-const file = require('../../common/utils/file')
-const path = require('path')
 require('../../common/utils/array-random.polyfill')
+const { MongoClient, ObjectId } = require('mongodb')
 
-userData.__file__ = path.join(__dirname, 'users.test.json')
+const url = 'mongodb://localhost/rest-api-test'
 
 describe('user data', () => {
+    let client, users
+
+    beforeAll(async () => {
+        client = await MongoClient.connect(url, { useNewUrlParser: true })
+        const db = client.db()
+        users = db.collection('users')
+        userData.__col__ = users
+    })
+
     const names = ['Pepito', 'Fulanito', 'Menganito']
 
-    const users = new Array(Math.random(100)).fill().map(() => ({
-        id: `123-${Math.random()}`,
+    const _users = new Array(Math.random(100)).fill().map(() => ({
         name: `${names.random()}-${Math.random()}`,
         surname: `Grillo-${Math.random()}`,
         email: `grillo-${Math.random()}@mail.com`,
         password: `123-${Math.random()}`
     }))
 
-    beforeEach(() => delete userData.__users__)
+    beforeEach(() => users.deleteMany())
 
     describe('create', () => {
-        beforeEach(() => file.writeFile(userData.__file__, '[]'))
-
         it('should succeed on correct data', async () => {
             const user = {
                 name: 'Manuel',
@@ -30,30 +35,31 @@ describe('user data', () => {
             }
             await userData.create(user)
 
-            expect(typeof user.id).toBe('string')
+            expect(typeof user._id).toBeInstanceOf(ObjectId)
 
-            const content  = await file.readFile(userData.__file__, 'utf8')
+            const content  = await file.find()
 
-            expect(content).toBeDefined()
+            const _users = []
 
-            const users = JSON.parse(content)
+            await SVGPathSegCurvetoCubicSmoothRel.forEach(user => _users.push(user))
 
             expect(users).toHaveLength(1)
 
-            const [_user] = users
+            const [_user] = _users
 
             expect(_user).toEqual(user)
         })
     })
 
     describe('list', () => {
-        beforeEach(() => file.writeFile(userData.__file__, JSON.stringify(users)))
+        // beforeEach(async () => await userData.create(_user[0]))
+        beforeEach(() => users.insert(_users))
 
-        it('should succeed and return items if users exist', async () => {
-
-            const _users = await userData.list()
-                expect(_users).toHaveLength(users.length)
-                expect(_users).toEqual(users)
+        fit('should succeed and return items if users exist', async () => {
+            let users = await userData.list()
+            __users = await __users.toArray()
+            expect(__users.length).toBe(1)
+            expect(__users[0]).toEqual(_users[0])
         })
     })
 

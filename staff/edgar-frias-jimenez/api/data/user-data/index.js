@@ -1,47 +1,21 @@
-const file = require('../../common/utils/file')
-const path = require('path')
-const uuid = require('uuid/v4')
 const validate = require('../../common/validate')
 const { ValueError } = require('../../common/errors')
 
 const userData = {
-    __file__: path.join(__dirname, 'users.json'),
-
-    async __load__() {
-        if (this.__users__)
-            return this.__users__
-        else {
-            const content = await file.readFile(this.__file__, 'utf8')
-
-            const users = JSON.parse(content)
-
-            return this.__users__ = users
-        }
-    },
-
-    __save__() {
-        return file.writeFile(this.__file__, JSON.stringify(this.__users__))
-    },
+    __col__: null,
 
     create(user) {
         validate.arguments([
             { name: 'user', value: user, type: 'object', optional: false }
         ])
 
-        user.id = uuid()
-
         return (async () => {
-            const users = await this.__load__()
-
-            users.push(user)
-
-            return await this.__save__()
+            await this.__col__.insertOne(user)
         })()
     },
 
     list() {
-        return this.__load__()
-
+        return await this.__col__.find().toArray()
     },
 
     retrieve(id) {

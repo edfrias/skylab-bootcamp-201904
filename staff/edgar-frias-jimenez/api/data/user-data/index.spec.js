@@ -164,5 +164,5 @@ describe('user data', () => {
         })
     })
 
-    afterAll(() => client.close())
+    afterAll(() => client.close(true))
 })

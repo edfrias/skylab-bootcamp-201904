@@ -1,12 +1,10 @@
 const logic = require('.')
-const { LogicError, RequirementError, ValueError, FormatError } = require('../common/errors')
+const { LogicError, RequirementError } = require('../common/errors')
 const userData = require('../data/user-data')
 const duckApi = require('../data/duck-api')
 require('../common/utils/object-matches.polyfill')
-const path = require('path')
-const file = require('../common/utils/file')
+const { MongoClient } = require('mongodb')
 
-userData.__file__ = path.join(__dirname, 'users.test.json')
 
 describe('logic', () => {
     const name = 'Manuel'
@@ -14,123 +12,172 @@ describe('logic', () => {
     let email
     const password = '123'
 
-    beforeEach(() => {
-        delete userData.__users__
+    beforeAll(async () => {
+        client = await MongoClient.connect(url, { useNewUrlParser: true })
+        const db = client.db()
+        users = db.collection('users')
+        userData.__col__ = users
+    })
+
+    beforeEach(async () => {
+        await users.deleteMany()
 
         email = `manuelbarzi-${Math.random()}@gmail.com`
     })
 
     describe('users', () => {
         describe('register user', () => {
-            beforeEach(() => file.writeFile(userData.__file__, '[]'))
-
-            it('should succeed on correct user data', () =>
-                logic.registerUser(name, surname, email, password)
-                    .then(response => {
-                        expect(response).toBeUndefined()
-
-                        return userData.find(user => user.matches({ name, surname, email, password }))
-                    })
-                    .then(users => {
-                        expect(users).toBeDefined()
-                        expect(users).toHaveLength(1)
-                    })
-            )
+            it('should succeed on correct user data', async () => {
+                const response = await logic.registerUser(name, surname, email, password)
+                    expect(response).toBeUndefined()
+                    const users = await userData.find(user => user.matches({ name, surname, email, password }))
+                    expect(users).toBeDefined()
+                    expect(users).toHaveLength(1)
+            })
 
             describe('on already existing user', () => {
-                beforeEach(() => logic.registerUser(name, surname, email, password))
+                beforeEach(() => userData.create(name, surname, email, password))
 
-                it('should fail on retrying to register', () =>
-                    logic.registerUser(name, surname, email, password)
-                        .then(() => { throw Error('should not reach this point') })
-                        .catch(error => {
-                            expect(error).toBeDefined()
-                            expect(error).toBeInstanceOf(LogicError)
-
-                            expect(error.message).toBe(`user with email "${email}" already exists`)
-                        })
-                )
+                it('should fail on retrying to register', async () => {
+                    try {
+                        await logic.registerUser(name, surname, email, password)
+                    } catch (error) {
+                        expect(error).toBeDefined()
+                        expect(error).toBeInstanceOf(LogicError)
+                        expect(error.message).toBe(`user with email "${email}" already exists`)
+                    }
+                })
             })
 
-            it('should fail on undefined name', () => {
+            it('should fail on undefined name', async () => {
                 const name = undefined
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `name is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('name is not optional')
+                }
             })
 
-            it('should fail on null name', () => {
+            it('should fail on null name', async () => {
                 const name = null
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `name is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('name is not optional')
+                }
             })
 
-            it('should fail on empty name', () => {
+            it('should fail on empty name', async () => {
                 const name = ''
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'name is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('name is empty')
+                }
             })
 
-            it('should fail on blank name', () => {
+            it('should fail on blank name', async () => {
                 const name = ' \t    \n'
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'name is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('name is empty')
+                }
             })
 
-            it('should fail on undefined surname', () => {
+            it('should fail on undefined surname', async () => {
                 const surname = undefined
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `surname is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('surname is not optional')
+                }
             })
 
-            it('should fail on null surname', () => {
+            it('should fail on null surname', async () => {
                 const surname = null
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `surname is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('surname is not optional')
+                }
             })
 
-            it('should fail on empty surname', () => {
+            it('should fail on empty surname', async () => {
                 const surname = ''
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'surname is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('surname is empty')
+                }
             })
 
-            it('should fail on blank surname', () => {
+            it('should fail on blank surname', async () => {
                 const surname = ' \t    \n'
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'surname is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('surname is empty')
+                }
             })
 
-            it('should fail on undefined email', () => {
+            it('should fail on undefined email', async () => {
                 const email = undefined
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `email is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('email is not optional')
+                }
             })
 
-            it('should fail on null email', () => {
+            it('should fail on null email', async () => {
                 const email = null
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(RequirementError, `email is not optional`)
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('email is not optional')
+                }
             })
 
-            it('should fail on empty email', () => {
+            it('should fail on empty email', async () => {
                 const email = ''
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'email is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('email is empty')
+                }
             })
 
-            it('should fail on blank email', () => {
+            it('should fail on blank email', async () => {
                 const email = ' \t    \n'
-
-                expect(() => logic.registerUser(name, surname, email, password)).toThrowError(ValueError, 'email is empty')
+                try {
+                    await logic.registerUser(name, surname, email, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe('email is empty')
+                }
             })
 
-            it('should fail on non-email email', () => {
+            it('should fail on non-email email', async () => {
                 const nonEmail = 'non-email'
-
-                expect(() => logic.registerUser(name, surname, nonEmail, password)).toThrowError(FormatError, `${nonEmail} is not an e-mail`)
+                try {
+                    await logic.registerUser(name, surname, nonEmail, password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error.message).toBe(`${nonEmail} is not an e-mail`)
+                }
             })
-
-            // TODO password fail cases
         })
 
         describe('authenticate user', () => {
@@ -138,57 +185,52 @@ describe('logic', () => {
                 userData.create({ name, surname, email, password })
             )
 
-            it('should succeed on correct user credential', () =>
-                logic.authenticateUser(email, password)
-                    .then(id => {
-                        expect(typeof id).toBe('string')
-                        expect(id.length).toBeGreaterThan(0)
-                    })
-            )
+            it('should succeed on correct user credential', async () => {
+                const id = await logic.authenticateUser(email, password)
+                expect(typeof id).toBe('string')
+                expect(id.length).toBeGreaterThan(0)
+            })
 
-            it('should fail on non-existing user', () =>
-                logic.authenticateUser(email = 'unexisting-user@mail.com', password)
-                    .then(() => { throw Error('should not reach this point') })
-                    .catch(error => {
-                        expect(error).toBeDefined()
-                        expect(error).toBeInstanceOf(LogicError)
-
-                        expect(error.message).toBe(`user with email "${email}" does not exist`)
-                    })
-            )
+            it('should fail on non-existing user', async () => {
+                try {
+                    await logic.authenticateUser(email = 'unexisting-user@mail.com', password)
+                    throw Error('should not reach this point')
+                } catch (error) {
+                    expect(error).toBeDefined()
+                    expect(error).toBeInstanceOf(LogicError)
+                    expect(error.message).toBe(`user with email "${email}" does not exist`)
+                }
+            })
         })
 
         describe('retrieve user', () => {
             let id
 
-            beforeEach(() =>
-                userData.create({ name, surname, email, password })
-                    .then(() => userData.find(user => user.email === email))
-                    .then(users => id = users[0].id)
-            )
+            beforeEach(async () => {
+                await userData.create({ name, surname, email, password })
+                await userData.find(user => user.email === email)
+                id = users[0]._id.toString()
+           })
 
-            it('should succeed on correct user id', () =>
-                logic.retrieveUser(id)
-                    .then(user => {
-                        expect(user.id).toBeUndefined()
-                        expect(user.name).toBe(name)
-                        expect(user.surname).toBe(surname)
-                        expect(user.email).toBe(email)
-                        expect(user.password).toBeUndefined()
-                    })
-            )
+            it('should succeed on correct user id', async () => {
+                const user = await logic.retrieveUser(id)
+                expect(user.id).toBeUndefined()
+                expect(user.name).toBe(name)
+                expect(user.surname).toBe(surname)
+                expect(user.email).toBe(email)
+                expect(user.password).toBeUndefined()
+            })
 
             it('should fail on unexisting user id', () => {
                 id = 'wrong-id'
-
-                return logic.retrieveUser(id)
-                    .then(() => { throw new Error('should not reach this point') })
-                    .catch(error => {
-                        expect(error).toBeDefined()
-                        expect(error).toBeInstanceOf(LogicError)
-
-                        expect(error.message).toBe(`user with id "${id}" does not exist`)
-                    })
+                try {
+                    await logic.retrieveUser(id)
+                    throw new Error('should not reach this point')
+                } catch (error) {
+                    expect(error).toBeDefined()
+                    expect(error).toBeInstanceOf(LogicError)
+                    expect(error.message).toBe(`user with id "${id}" does not exist`)
+                }
             })
         })
 
@@ -236,8 +278,6 @@ describe('logic', () => {
 
                 expect(() => logic.toggleFavDuck(duckId)).toThrowError(RequirementError, 'id is not optional')
             })
-
-            // TODO more cases
         })
 
         describe('retrieve fav ducks', () => {
@@ -324,5 +364,5 @@ describe('logic', () => {
         })
     })
 
-    afterAll(() => file.writeFile(userData.__file__, '[]'))
+    afterAll(() => client.close(true))
 })

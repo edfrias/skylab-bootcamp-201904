@@ -1,6 +1,6 @@
 const validate = require('../common/validate')
 const duckApi = require('../data/duck-api')
-const { LogicError } = require('../common/errors')
+const { LogicError, FormatError } = require('../common/errors')
 const userData = require('../data/user-data')
 
 const logic = {
@@ -73,18 +73,17 @@ const logic = {
 
     },
 
-    retrieveDuck(id, duckId) {
+    async retrieveDuck(id, duckId) {
         validate.arguments([
             { name: 'id', value: id, type: 'string', notEmpty: true },
             { name: 'duckId', value: duckId, type: 'string', notEmpty: true }
         ])
 
-        return userData.retrieve(id)
-            .then(user => {
-                if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+        if(!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
-                return duckApi.retrieveDuck(duckId)
-            })
+        const user = userData.retrieve(id)
+        if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+        return duckApi.retrieveDuck(duckId)
     },
 
     toggleFavDuck(id, duckId) {
@@ -92,19 +91,16 @@ const logic = {
             { name: 'id', value: id, type: 'string', notEmpty: true },
             { name: 'duckId', value: duckId, type: 'string', notEmpty: true }
         ])
+        if (!user) throw new LogicError(`user with id "${id}" does not exist`)
 
-        return userData.retrieve(id)
-            .then(user => {
-                const { favs = [] } = user
-
-                const index = favs.indexOf(duckId)
-
-                if (index < 0) favs.push(duckId)
-                else favs.splice(index, 1)
-
-                return userData.update(id, { favs })
-                    .then(() => { })
-            })
+        return (async () => {
+            const user = await userData.retrieve(ObjectId(id))
+            const { favs = [] } = user
+            const index = favs.indexOf(duckId)
+            if (index < 0) favs.push(duckId)
+            else favs.splice(index, 1)
+            return await userData.update(id, { favs })
+        })()
     },
 
     retrieveFavDucks(id) {

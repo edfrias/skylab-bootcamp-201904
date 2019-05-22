@@ -2,6 +2,7 @@ const validate = require('../common/validate')
 const duckApi = require('../data/duck-api')
 const { LogicError, FormatError } = require('../common/errors')
 const userData = require('../data/user-data')
+const { ObjectId } = require('mongodb')
 
 const logic = {
     registerUser(name, surname, email, password) {
@@ -14,12 +15,13 @@ const logic = {
 
         validate.email(email)
 
-        return userData.find(user => user.email === email)
-            .then(users => {
-                if (users.length) throw new LogicError(`user with email "${email}" already exists`)
+        return (async () => {
+            const users = await userData.find(user => user.email === email)
 
-                return userData.create({ email, password, name, surname })
-            })
+            if (users.length) throw new LogicError(`user with email "${email}" already exists`)
+
+            return userData.create({ email, password, name, surname })
+        })()
     },
 
     authenticateUser(email, password) {
@@ -30,16 +32,17 @@ const logic = {
 
         validate.email(email)
 
-        return userData.find(user => user.email === email)
-            .then(users => {
-                if (!users.length) throw new LogicError(`user with email "${email}" does not exist`)
+        return (async () => {
+            const users = await userData.find(user => user.email === email)
 
-                const [user] = users
+            if (!users.length) throw new LogicError(`user with email "${email}" does not exist`)
 
-                if (user.password !== password) throw new LogicError('wrong credentials')
+            const [user] = users
 
-                return user.id
-            })
+            if (user.password !== password) throw new LogicError('wrong credentials')
+
+            return user._id.toString()
+        })()
     },
 
     retrieveUser(id) {
@@ -47,14 +50,17 @@ const logic = {
             { name: 'id', value: id, type: 'string', notEmpty: true }
         ])
 
-        return userData.retrieve(id)
-            .then(user => {
-                if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+        if (!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
-                const { name, surname, email } = user
+        return (async () => {
+            const user = await userData.retrieve(ObjectId(id))
 
-                return { name, surname, email }
-            })
+            if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+
+            const { name, surname, email } = user
+
+            return { name, surname, email }
+        })()
     },
 
     searchDucks(id, query) {
@@ -73,17 +79,21 @@ const logic = {
 
     },
 
-    async retrieveDuck(id, duckId) {
+    retrieveDuck(id, duckId) {
         validate.arguments([
             { name: 'id', value: id, type: 'string', notEmpty: true },
             { name: 'duckId', value: duckId, type: 'string', notEmpty: true }
         ])
 
-        if(!ObjectId.isValid(id)) throw new FormatError('invalid id')
+        if (!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
-        const user = userData.retrieve(id)
-        if (!user) throw new LogicError(`user with id "${id}" does not exist`)
-        return duckApi.retrieveDuck(duckId)
+        return (async () => {
+            const user = await userData.retrieve(id)
+
+            if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+
+            return duckApi.retrieveDuck(duckId)
+        })()
     },
 
     toggleFavDuck(id, duckId) {
@@ -91,15 +101,22 @@ const logic = {
             { name: 'id', value: id, type: 'string', notEmpty: true },
             { name: 'duckId', value: duckId, type: 'string', notEmpty: true }
         ])
-        if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+
+        if (!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
         return (async () => {
-            const user = await userData.retrieve(ObjectId(id))
+            const oid = ObjectId(id)
+
+            const user = await userData.retrieve(oid)
+
             const { favs = [] } = user
+
             const index = favs.indexOf(duckId)
+
             if (index < 0) favs.push(duckId)
             else favs.splice(index, 1)
-            return await userData.update(id, { favs })
+
+            await userData.update(oid, { favs })
         })()
     },
 

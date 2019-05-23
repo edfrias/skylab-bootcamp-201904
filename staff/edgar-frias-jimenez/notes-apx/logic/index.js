@@ -1,7 +1,6 @@
 const validate = require('../common/validate')
 const { LogicError, FormatError } = require('../common/errors')
 const { User } = require('../data/models')
-const { ObjectId } = require('mongodb')
 
 const logic = {
     registerUser(name, surname, email, password) {
@@ -43,8 +42,6 @@ const logic = {
         validate.arguments([
             { name: 'id', value: id, type: 'string', notEmpty: true }
         ])
-
-        // if (!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
         return (async () => {
             const user = await User.findById(id)

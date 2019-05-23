@@ -1,15 +1,15 @@
 require('dotenv').config()
+const mongoose = require('mongoose')
 
 const logic = require('./index.js')
 const { LogicError, RequirementError, ValueError, FormatError } = require('../common/errors')
-require('../common/utils/object-matches.polyfill')
-require('../common/utils/array-random.polyfill')
+// require('../common/utils/object-matches.polyfill')
+// require('../common/utils/array-random.polyfill')
 const { User } = require('../data/models')
-const mongoose = require('mongoose')
 const { env: { MONGO_URL_LOGIC_TEST : url }} = process
 
 describe('logic', () => {
-    // let client
+    let client
 
     beforeAll(async () => {
         await mongoose.connect(url, {useNewUrlParser: true})
@@ -21,6 +21,9 @@ describe('logic', () => {
     const password = '123'
 
     beforeEach(async () => {
+        // await User.deleteMany()
+        // await Note.deleteMany()
+
         email = `manuelbarzi-${Math.random()}@gmail.com`
     })
 
@@ -126,8 +129,6 @@ describe('logic', () => {
 
                 expect(() => logic.registerUser(name, surname, nonEmail, password)).toThrowError(FormatError, `${nonEmail} is not an e-mail`)
             })
-
-            // TODO password fail cases
         })
 
         describe('authenticate user', () => {
@@ -141,7 +142,7 @@ describe('logic', () => {
 
             it('should fail on non-existing user', async () => {
                 try {
-                    await logic.authenticateUser(email = 'unexisting-user@mail.com', password)
+                    await logic.authenticateUser(email = 'justFail@mail.com', password)
 
                     throw Error('should not reach this point')
                 } catch (error) {
@@ -197,8 +198,5 @@ describe('logic', () => {
 
     })
 
-    afterAll(done => {
-        client.close()
-        done()
-    })
+    afterAll(() => mongoose.disconnect())
 })

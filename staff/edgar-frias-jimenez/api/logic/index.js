@@ -69,14 +69,12 @@ const logic = {
             { name: 'query', value: query, type: 'string' }
         ])
 
-        return userData.retrieve(id)
-            .then(user => {
-                if (!user) throw new LogicError(`user with id "${id}" does not exist`)
-
-                return duckApi.searchDucks(query)
-            })
-            .then(ducks => ducks instanceof Array ? ducks : [])
-
+        return (async () => {
+            let user = await userData.retrieve(ObjectId(id))
+            if (!user) throw new LogicError(`user with id "${id}" does not exist`)
+            let ducks = await duckApi.searchDucks(query)
+            return ducks instanceof Array ? ducks : []
+        })()
     },
 
     retrieveDuck(id, duckId) {
@@ -88,11 +86,11 @@ const logic = {
         if (!ObjectId.isValid(id)) throw new FormatError('invalid id')
 
         return (async () => {
-            const user = await userData.retrieve(id)
+            const user = await userData.retrieve(ObjectId(id))
 
             if (!user) throw new LogicError(`user with id "${id}" does not exist`)
 
-            return duckApi.retrieveDuck(duckId)
+            return await duckApi.retrieveDuck(duckId)
         })()
     },
 
@@ -125,16 +123,15 @@ const logic = {
             { name: 'id', value: id, type: 'string', notEmpty: true }
         ])
 
-        return userData.retrieve(id)
-            .then(user => {
-                const { favs = [] } = user
+        return (async () => {
+            const user = await userData.retrieve(ObjectId(id))
+            const { favs = [] } = user
+            if (favs.length) {
+                const calls = favs.map(fav => duckApi.retrieveDuck(fav))
 
-                if (favs.length) {
-                    const calls = favs.map(fav => duckApi.retrieveDuck(fav))
-
-                    return Promise.all(calls)
-                } else return favs
-            })
+                return Promise.all(calls)
+            } else return favs
+        })()
     }
 }
 

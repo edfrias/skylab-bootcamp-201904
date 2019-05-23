@@ -1,7 +1,6 @@
-const mongoose = require('mongoose')
+const { Schema } = require('mongoose')
+const NoteSchema = require('./notes')
 const { isEmail } = require('validator')
-
-const Schema = mongoose.Schema
 
 const UserSchema = new Schema ({
   name: { type: String, required: true },
@@ -13,7 +12,7 @@ const UserSchema = new Schema ({
         validate: isEmail
     },
     password: { type: String, required: true },
-    // notes: [note]
+    notes: [NoteSchema]
 })
 
 module.exports =  UserSchema

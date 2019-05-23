@@ -3,14 +3,10 @@ const mongoose = require('mongoose')
 
 const logic = require('./index.js')
 const { LogicError, RequirementError, ValueError, FormatError } = require('../common/errors')
-// require('../common/utils/object-matches.polyfill')
-// require('../common/utils/array-random.polyfill')
-const { User } = require('../data/models')
+const { User, Note } = require('../data/models')
 const { env: { MONGO_URL_LOGIC_TEST : url }} = process
 
 describe('logic', () => {
-    let client
-
     beforeAll(async () => {
         await mongoose.connect(url, {useNewUrlParser: true})
     })
@@ -21,9 +17,8 @@ describe('logic', () => {
     const password = '123'
 
     beforeEach(async () => {
-        // await User.deleteMany()
-        // await Note.deleteMany()
-
+        await User.deleteMany()
+        await Note.deleteMany()
         email = `manuelbarzi-${Math.random()}@gmail.com`
     })
 
@@ -195,7 +190,44 @@ describe('logic', () => {
     })
 
     describe('notes', () => {
+        const text = 'This is a random text'
+        let userId
 
+        beforeEach(async () => {
+            await User.create({ name, surname, email, password })
+            const user = await User.findOne({email})
+            userId = user.id
+        })
+        debugger
+        fit('shoul succes on adding a public note', async () => {
+            debugger
+            const response = await logic.addPublicNote(userId, text)
+
+            debugger
+            expect(response).toBeDefined()
+            expect(typeof response).toBe('string')
+            expect(response).toBe('Message published')
+        })
+
+        it('shoul succes on deleting a public note', async () => {
+
+            const addNote = await Note.create({text: text, author: userId})
+
+            const response = await logic.removePublicNote(addNote.userId)
+
+            expect(response).toBeDefined()
+            expect(typeof response).toBe('string')
+            expect(response).toBe('Message deleted')
+        })
+
+        it('shoul succes on adding a private note', async () => {
+
+            const response = await logic.addPrivateNote(userId, text)
+
+            expect(response).toBeDefined()
+            expect(typeof response).toBe('string')
+            expect(response).toBe('Message published')
+        })
     })
 
     afterAll(() => mongoose.disconnect())

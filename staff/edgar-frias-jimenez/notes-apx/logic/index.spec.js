@@ -193,6 +193,10 @@ describe('logic', () => {
 
     })
 
+    describe('notes', () => {
+
+    })
+
     afterAll(done => {
         client.close()
         done()
